@@ -26,7 +26,8 @@ def get_openai_client() -> OpenAI:
     config.require("AZURE_OPENAI_ENDPOINT")
     # TODO 1.1.b: Create a bearer token provider for "https://ai.azure.com/.default" and
     # return an OpenAI client that uses AZURE_OPENAI_ENDPOINT as base_url
-    raise NotImplementedError("TODO 1.1.b")
+    token_provider = get_bearer_token_provider(_credential(), "https://ai.azure.com/.default")
+    return OpenAI(base_url=config.AZURE_OPENAI_ENDPOINT, api_key=token_provider)
 
 
 def get_project_clients() -> tuple[AIProjectClient, OpenAI]:

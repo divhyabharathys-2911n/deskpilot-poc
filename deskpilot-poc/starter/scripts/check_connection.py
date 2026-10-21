@@ -4,6 +4,9 @@ Run:  python scripts/check_connection.py
 """
 import sys
 from pathlib import Path
+from urllib import response
+
+from openai import OpenAI
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -16,7 +19,11 @@ def main() -> None:
     client = get_openai_client()
     # TODO 1.1.a: Call client.responses.create(model=config.MODEL_DEPLOYMENT, input="Reply
     # with the single word: ready") and print response.output_text
-    raise NotImplementedError("TODO 1.1.a")
+    response = client.responses.create(
+        model=config.MODEL_DEPLOYMENT,
+        input="Reply with the single word: ready",
+    )
+    print("Model replied:", response.output_text)
     print("Connection OK.")
 
 
