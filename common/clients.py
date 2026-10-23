@@ -35,4 +35,6 @@ def get_project_clients() -> tuple[AIProjectClient, OpenAI]:
     config.require("PROJECT_ENDPOINT")
     # TODO 2.1.a: Create an AIProjectClient from PROJECT_ENDPOINT, then get its OpenAI client
     # with get_openai_client(); return both
-    raise NotImplementedError("TODO 2.1.a")
+    project_client = AIProjectClient(endpoint=config.PROJECT_ENDPOINT, credential=_credential())
+    openai_client = project_client.get_openai_client()
+    return project_client, openai_client

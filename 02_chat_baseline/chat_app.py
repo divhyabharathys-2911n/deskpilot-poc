@@ -32,7 +32,21 @@ def main() -> None:
         # previous_response_id=last_response_id and stream=True. Print each
         # "response.output_text.delta" event's delta (end=""), and save event.response.id into
         # last_response_id on the "response.completed" event
-        raise NotImplementedError("TODO 1.3.a")
+        
+        Stream = client.responses.create(
+            model=config.MODEL_DEPLOYMENT,
+            instructions=INSTRUCTIONS,
+            input=text,
+            previous_response_id=last_response_id,
+            stream=True,
+        )
+        print("DeskPilot: ", end="")
+        for event in Stream:
+            if event.type == "response.output_text.delta":
+                print(event.delta, end="", flush=True)
+            elif event.type == "response.completed":
+                last_response_id = event.response.id
+        print()
 
 
 if __name__ == "__main__":

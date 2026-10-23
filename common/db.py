@@ -76,7 +76,7 @@ def can_view(user: str, ticket: dict) -> bool:
     """Employees see only their own tickets. Admins see every ticket."""
     # TODO 1.3.b: Return True when the user is an admin or is the ticket's requester,
     # otherwise False
-    raise NotImplementedError("TODO 1.3.b")
+    return is_admin(user) or ticket["requester"] == user
 
 
 def _next_id(conn) -> str:

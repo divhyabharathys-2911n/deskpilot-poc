@@ -14,7 +14,7 @@ class KnowledgeAgent:
         # TODO 2.1.e: Load the agent you created in the portal with
         # project_client.agents.get(agent_name=self.name) and keep it in self.agent. This
         # fails early with a clear error if the name in .env is wrong
-        raise NotImplementedError("TODO 2.1.e")
+        self.agent = project_client.agents.get(agent_name=self.name)
 
     def new_conversation(self) -> str:
         return self.openai_client.conversations.create(items=[]).id

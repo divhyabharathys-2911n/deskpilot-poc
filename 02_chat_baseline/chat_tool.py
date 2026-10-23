@@ -22,8 +22,20 @@ INSTRUCTIONS = (
 # TODO 1.3.c: Define TOOLS: a list with one function tool dict {"type": "function", "name":
 # "lookup_ticket", "description": ..., "parameters": {JSON schema with one required string
 # "ticket_id"}, "strict": True} (additionalProperties must be False)
-raise NotImplementedError("TODO 1.3.c")
-
+TOOLS = [
+    {
+        "type": "function",
+        "name": "lookup_ticket",
+        "description": "Look up the status and details of a support ticket by its ID, for example INC-1001.",
+        "parameters": {
+            "type": "object",
+            "properties": {"ticket_id": {"type": "string", "description": "Ticket ID such as INC-1001."}},
+            "required": ["ticket_id"],
+            "additionalProperties": False,
+        },
+        "strict": True,
+    }
+]
 
 def lookup_ticket(user: str, ticket_id: str) -> str:
     try:
@@ -56,7 +68,23 @@ def main() -> None:
         # collect {"type": "function_call_output", "call_id": item.call_id, "output": result}.
         # Then call client.responses.create again with input=those outputs,
         # previous_response_id=response.id, and the same model, instructions and tools
-        raise NotImplementedError("TODO 1.3.d")
+        while True:
+            calls = [item for item in response.output if item.type == "function_call"]
+            if not calls:
+                break
+            outputs = []
+            for call in calls:
+                arguments = json.loads(call.arguments)
+                print(f" [tool call] {call.name}({arguments})")
+                outputs.append({
+                    "type": "function_call_output",
+                    "call_id": call.call_id,
+                    "output": lookup_ticket(args.user, arguments["ticket_id"]),
+                })
+            response = client.responses.create(
+                model=config.MODEL_DEPLOYMENT, instructions=INSTRUCTIONS, input=outputs,
+                previous_response_id=response.id, tools=TOOLS,
+            )
         print("DeskPilot:", response.output_text)
         last_response_id = response.id
 
