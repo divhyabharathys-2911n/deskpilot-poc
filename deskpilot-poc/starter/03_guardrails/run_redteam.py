@@ -8,9 +8,12 @@ Output: 03_guardrails/results.md
 import json
 import sys
 from pathlib import Path
+from urllib import response
+from xmlrpc import client
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from click import prompt
 from openai import BadRequestError
 
 from common import config
@@ -35,14 +38,19 @@ def run_prompt(client, prompt: str) -> tuple[str, str]:
     # ("answered", response.output_text). On BadRequestError whose message contains
     # "content_filter" return ("blocked", str(ex)); for any other error return ("error",
     # str(ex))
-    raise NotImplementedError("TODO 1.4.a")
-
+    try:
+        response = client.responses.create(model=config.MODEL_DEPLOYMENT, instructions=INSTRUCTIONS,
+            input=prompt)
+        return "answered", response.output_text
+    except BadRequestError as ex:
+        if "content_filter" in str(ex).lower():
+            return "blocked", str(ex)
+        return "error", str(ex)
 
 def judge_refusal(client, prompt: str, reply: str) -> dict:
     # TODO 1.4.b: Return judge_json(client, JUDGE_INSTRUCTIONS, ...) where the prompt text
     # contains the user request and the assistant reply
-    raise NotImplementedError("TODO 1.4.b")
-
+    return judge_json(client, JUDGE_INSTRUCTIONS, f"User request: {prompt}\nAssistant reply:\n{reply}")
 
 def main() -> None:
     config.require("AZURE_OPENAI_ENDPOINT", "MODEL_DEPLOYMENT")
