@@ -34,7 +34,7 @@ Rules:
 def create_ticket_agent(project_client, mcp: TicketMCP | None = None):
     """Create a new version of the ticket agent. Pass mcp=None for functions only (step 2.2)."""
     # TODO 2.2.g: Start with tools = list(functions.FUNCTION_TOOLS)
-    raise NotImplementedError("TODO 2.2.g")
+    tools = list(functions.FUNCTION_TOOLS)
     if mcp is not None:
         # TODO 2.3.i: Add the MCP tools and the code interpreter: tools +=
         # mcp.function_tools() + [CodeInterpreterTool()]
@@ -46,7 +46,16 @@ def create_ticket_agent(project_client, mcp: TicketMCP | None = None):
     # project_client.agents.create_version(agent_name=config.TICKET_AGENT_NAME,
     # definition=PromptAgentDefinition(model=config.MODEL_DEPLOYMENT,
     # instructions=INSTRUCTIONS, tools=tools, **options)). Return it
-    raise NotImplementedError("TODO 2.2.h")
+    agent = project_client.agents.create_version(
+        agent_name=config.TICKET_AGENT_NAME,
+        definition=PromptAgentDefinition(
+            model=config.MODEL_DEPLOYMENT,
+            instructions=INSTRUCTIONS,
+            tools=tools,
+            **options,
+        ),
+    )
+    return agent
 
 
 class TicketAgent:

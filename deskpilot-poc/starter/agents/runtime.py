@@ -9,10 +9,13 @@ so the loop lives here once:
   4. if the agent calls one of OUR functions           -> run it, send the output, ask again
   5. collect the final text, citations and any files the code interpreter produced
 """
+from operator import call
+from operator import call
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
+from unittest import result
 
 from common import config
 
@@ -135,7 +138,16 @@ def run_agent_turn(openai_client, agent_name: str, conversation_id: str, user_te
             # extra_body=agent_ref(agent_name)) and continue the loop. Use the conversation
             # (not previous_response_id) so the next message does not fail with "No tool
             # output found"
-            raise NotImplementedError("TODO 2.2.f")
+            outputs = []
+            for call in calls:
+                output = function_handler(call.name, call.arguments)
+                result.tools.append({"type": "function", "name": call.name,
+                                     "detail": _short(call.arguments), "result": _short(output)})
+                outputs.append({"type": "function_call_output", "call_id": call.call_id, "output": output})
+            response = openai_client.responses.create(
+                conversation=conversation_id, input=outputs, extra_body=agent_ref(agent_name)
+            )
+            continue
 
         break
 
