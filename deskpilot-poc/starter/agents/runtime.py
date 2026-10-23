@@ -92,12 +92,16 @@ def run_agent_turn(openai_client, agent_name: str, conversation_id: str, user_te
     # TODO 2.1.b: Add the user message to the conversation:
     # openai_client.conversations.items.create(conversation_id=conversation_id,
     # items=[{"type": "message", "role": "user", "content": user_text}])
-    raise NotImplementedError("TODO 2.1.b")
-
+    openai_client.conversations.items.create(
+        conversation_id=conversation_id,
+        items=[{"type": "message", "role": "user", "content": user_text}],
+    )
     # TODO 2.1.c: Ask the agent for a response:
     # openai_client.responses.create(conversation=conversation_id,
     # extra_body=agent_ref(agent_name), input="")
-    raise NotImplementedError("TODO 2.1.c")
+    response = openai_client.responses.create(
+        conversation=conversation_id, extra_body=agent_ref(agent_name), input=""
+    )
 
     for _ in range(max_rounds):
         _trace_other_items(result, response.output)
@@ -110,7 +114,17 @@ def run_agent_turn(openai_client, agent_name: str, conversation_id: str, user_te
             # openai_client.conversations.items.create(...); also append a trace entry. Then
             # get the next response with openai_client.responses.create(conversation=...,
             # extra_body=agent_ref(agent_name), input="") and continue the loop
-            raise NotImplementedError("TODO 2.1.d")
+            decisions = []
+            for request in approvals:
+                result.tools.append({"type": "knowledge_base", "name": request.name,
+                                    "detail": _short(request.arguments)})
+            decisions.append({"type": "mcp_approval_response",
+                            "approval_request_id": request.id, "approve": True})
+            openai_client.conversations.items.create(conversation_id=conversation_id, items=decisions)
+            response = openai_client.responses.create(
+                conversation=conversation_id, extra_body=agent_ref(agent_name), input=""
+            )
+            continue
 
         if calls and function_handler is not None:
             # TODO 2.2.f: For each function_call run function_handler(call.name,
