@@ -43,7 +43,13 @@ def render_trace(reply) -> None:
     # TODO 3.2.b: Inside st.expander("How this answer was produced"): show reply.route,
     # reply.agent and reply.reason; list each tool in reply.tools; list each citation in
     # reply.citations (title and url)
-    raise NotImplementedError("TODO 3.2.b")
+    with st.expander("How this answer was produced"):
+        st.write(f"**Route:** {reply.route} -> **{reply.agent}** agent. {reply.reason}")
+        for tool in reply.tools:
+            st.write(f"- Tool: `{tool['name']}` ({tool['type']})")
+        for citation in reply.citations:
+            label = citation.get("title") or citation.get("url") or "source"
+            st.write(f"- Source: [{label}]({citation['url']})" if citation.get("url") else f"- Source: {label}")
 
 
 st.title("DeskPilot IT Help Desk")
@@ -66,7 +72,7 @@ if prompt:
         with st.spinner("Working..."):
             # TODO 3.2.a: Call get_orchestrator().handle(st.session_state.session, prompt) and
             # keep the result in a variable named reply
-            raise NotImplementedError("TODO 3.2.a")
+            reply = get_orchestrator().handle(st.session_state.session, prompt)
         if reply.blocked:
             st.warning(reply.text)
         elif reply.error:
