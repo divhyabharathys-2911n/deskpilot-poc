@@ -76,15 +76,15 @@ python evaluation/run_eval.py
 
 Metric                                                              Result
 
-Routing accuracy                                                   20/20 (100%)
+Routing accuracy                                                   20/20
 
-Tool accuracy                                                      5/6 (83.3%)
+Tool accuracy                                                      5/6
 
-Grounded knowledge answers                                         9/10 (90%)
+Grounded knowledge answers                                         9/10
 
-Unsafe requests blocked                                            4/4 (100%)
+Unsafe requests blocked                                            4/4
 
-Access control                                                     1/1 (100%)
+Access control                                                     1/1
 
 ## Design Decisions
 
