@@ -83,7 +83,20 @@ class Orchestrator:
             # text), session.user), agent name "ticket". Otherwise (knowledge): turn =
             # self.knowledge.ask(session.knowledge_conversation, text). Build the Reply from
             # turn.text, turn.tools, turn.citations and turn.files
-            raise NotImplementedError("TODO 3.1.c")
+            if route == "unsafe":
+                _log_blocked(session.user, text, reason)
+                reply = Reply(REFUSAL, route, "triage", reason, blocked=True)
+            elif route == "other":
+                reply = Reply(OTHER, route, "triage", reason)
+            else:
+                if route == "ticket":
+                    turn = self.tickets.ask(session.ticket_conversation, self._ticket_request(session, text),
+                        session.user)
+                    agent = "ticket"
+                else:
+                    turn = self.knowledge.ask(session.knowledge_conversation, text)
+                    agent = "knowledge"
+                reply = Reply(turn.text, route, agent, reason, turn.tools, turn.citations, turn.files)
         except Exception as ex:  # keep the UI alive; show the problem instead of crashing
             if "content_filter" in str(ex).lower():
                 _log_blocked(session.user, text, "Blocked by the Foundry content filter")

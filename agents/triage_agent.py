@@ -35,8 +35,14 @@ def create_triage_agent(project_client):
     # project_client.agents.create_version(agent_name=config.TRIAGE_AGENT_NAME,
     # definition=PromptAgentDefinition(model=config.MODEL_DEPLOYMENT,
     # instructions=INSTRUCTIONS, **options)) and return it. The triage agent has no tools
-    raise NotImplementedError("TODO 3.1.a")
-
+    return project_client.agents.create_version(
+        agent_name=config.TRIAGE_AGENT_NAME,
+        definition=PromptAgentDefinition(
+            model=config.MODEL_DEPLOYMENT,
+            instructions=INSTRUCTIONS,
+            **options,
+        ),
+    )
 
 def _parse_route(text: str) -> dict:
     match = re.search(r"\{.*\}", text or "", re.DOTALL)
@@ -59,4 +65,7 @@ def classify(openai_client, text: str, recent: list[dict]) -> dict:
     # openai_client.responses.create(extra_body=agent_ref(config.TRIAGE_AGENT_NAME),
     # input=prompt) with no conversation, so every classification is independent. Return
     # _parse_route(response.output_text)
-    raise NotImplementedError("TODO 3.1.b")
+    response = openai_client.responses.create(
+        extra_body=agent_ref(config.TRIAGE_AGENT_NAME), input=prompt
+    )
+    return _parse_route(response.output_text)
