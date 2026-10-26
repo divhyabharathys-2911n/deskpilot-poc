@@ -44,10 +44,13 @@ class TicketMCP:
         # TODO 2.3.e: Start the server process with stdio_client(params) and create a
         # ClientSession from its read and write streams. Enter both with
         # self._stack.enter_async_context(...), then await self._session.initialize()
-        raise NotImplementedError("TODO 2.3.e")
+        read, write = await self._stack.enter_async_context(stdio_client(params))
+        self._session = await self._stack.enter_async_context(ClientSession(read, write))
+        await self._session.initialize()
         # TODO 2.3.f: List the tools the server offers: store the result of await
         # self._session.list_tools() ".tools" in self.tools
-        raise NotImplementedError("TODO 2.3.f")
+        listing = await self._session.list_tools()
+        self.tools = listing.tools
 
     def function_tools(self) -> list[FunctionTool]:
         """Turn each MCP tool into a FunctionTool for the agent, hiding `requester`."""
@@ -56,7 +59,19 @@ class TicketMCP:
             # TODO 2.3.g: Copy tool.input_schema, remove HIDDEN_ARGS from its "properties" and
             # "required" lists, then build FunctionTool(name=tool.name,
             # description=tool.description, parameters=schema, strict=False)
-            raise NotImplementedError("TODO 2.3.g")
+            schema = dict(tool.input_schema)
+            schema["properties"] = {
+                key: value for key, value in schema.get("properties", {}).items() if key not in HIDDEN_ARGS
+            }
+            schema["required"] = [key for key in schema.get("required", []) if key not in HIDDEN_ARGS]
+            tools.append(
+                FunctionTool(
+                    name=tool.name,
+                    description=tool.description or "",
+                    parameters=schema,
+                    strict=False,
+                )
+            )        
         return tools
 
     def has_tool(self, name: str) -> bool:
@@ -68,7 +83,10 @@ class TicketMCP:
         # overrides anything the model sent), call the tool with await
         # self._session.call_tool(name, args) through self._run(...), and return the text of
         # the result content items joined with newlines
-        raise NotImplementedError("TODO 2.3.h")
+        args = dict(arguments)
+        args["requester"] = requester
+        result = self._run(self._session.call_tool(name, args))
+        return "\n".join(item.text for item in result.content if getattr(item, "text", None))
 
     def close(self) -> None:
         try:

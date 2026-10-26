@@ -38,7 +38,7 @@ def create_ticket_agent(project_client, mcp: TicketMCP | None = None):
     if mcp is not None:
         # TODO 2.3.i: Add the MCP tools and the code interpreter: tools +=
         # mcp.function_tools() + [CodeInterpreterTool()]
-        raise NotImplementedError("TODO 2.3.i")
+        tools += mcp.function_tools() + [CodeInterpreterTool()]
     options = {}
     if config.RAI_POLICY_NAME:
         options["rai_config"] = RaiConfig(rai_policy_name=config.RAI_POLICY_NAME)

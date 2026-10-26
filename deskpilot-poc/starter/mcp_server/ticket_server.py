@@ -9,13 +9,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+
 # TODO 2.3.a: Import FastMCP from fastmcp and create the server: mcp =
 # FastMCP(name="DeskPilotTickets")
-raise NotImplementedError("TODO 2.3.a")
+from fastmcp import FastMCP
+mcp = FastMCP(name="DeskPilotTickets")
 
 from common import db  # noqa: E402  (imported after the sys.path change above)
 
-
+@mcp.tool
 # TODO 2.3.b: Register the function below as an MCP tool with the @mcp.tool() decorator
 def list_tickets(requester: str, status: str | None = None, category: str | None = None,
                  limit: int = 50) -> dict:
@@ -28,7 +30,7 @@ def list_tickets(requester: str, status: str | None = None, category: str | None
     except (ValueError, db.PermissionDenied) as ex:
         return {"error": str(ex)}
 
-
+@mcp.tool
 # TODO 2.3.c: Register the function below as an MCP tool with the @mcp.tool() decorator
 def update_ticket(requester: str, ticket_id: str, status: str | None = None,
                   note: str | None = None) -> dict:
@@ -43,4 +45,4 @@ def update_ticket(requester: str, ticket_id: str, status: str | None = None,
 if __name__ == "__main__":
     # TODO 2.3.d: Start the server with mcp.run(show_banner=False). The banner must be off
     # because it would corrupt the stdio protocol
-    raise NotImplementedError("TODO 2.3.d")
+    mcp.run(show_banner=False)
