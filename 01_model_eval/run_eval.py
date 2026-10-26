@@ -34,15 +34,23 @@ def ask_model(client, deployment: str, question: str) -> dict:
     # client.responses.create(model=deployment, instructions=SYSTEM_PROMPT, input=question),
     # then return a dict with "answer" (response.output_text), "latency_s" (seconds, 2
     # decimals), "input_tokens" and "output_tokens" (from response.usage)
-    raise NotImplementedError("TODO 1.2.a")
+    start = time.perf_counter()
+    response = client.responses.create(model=deployment, instructions=SYSTEM_PROMPT, input=question)
+    latency = round(time.perf_counter() - start, 2)
+    return {
+        "answer": response.output_text,
+        "latency_s": latency,
+        "input_tokens": response.usage.input_tokens,
+        "output_tokens": response.usage.output_tokens,
+    }
 
 
 def grade(client, item: dict, answer: str) -> dict:
     """Score one answer against the rubric with the judge model."""
     # TODO 1.2.b: Build a prompt string with the question, the rubric and the answer, then
     # return judge_json(client, JUDGE_INSTRUCTIONS, prompt)
-    raise NotImplementedError("TODO 1.2.b")
-
+    prompt = f"Question: {item['question']}\nRubric: {item['rubric']}\nAnswer to grade:\n{answer}"
+    return judge_json(client, JUDGE_INSTRUCTIONS, prompt)
 
 def summarise(rows: list[dict], prices: dict) -> dict:
     n = len(rows)

@@ -32,15 +32,17 @@ def run_case(orchestrator: Orchestrator, case: dict):
     """Run one question in a fresh session and return the orchestrator's Reply."""
     # TODO 3.3.a: Create a session with orchestrator.new_session(case["user"]) and return
     # orchestrator.handle(session, case["question"])
-    raise NotImplementedError("TODO 3.3.a")
-
+    session = orchestrator.new_session(case["user"])
+    return orchestrator.handle(session, case["question"])
 
 def grade_grounding(judge_client, case: dict, answer: str) -> dict:
     """Ask the judge model whether the answer is supported by the reference article."""
     # TODO 3.3.b: Read the reference article text from config.KB_SRC_DIR / (case["kb_article"]
     # + ".md"), build a prompt with the question, the article and the answer, and return
     # judge_json(judge_client, GROUNDING_INSTRUCTIONS, prompt)
-    raise NotImplementedError("TODO 3.3.b")
+    article = (config.KB_SRC_DIR / (case["kb_article"] + ".md")).read_text(encoding="utf-8")
+    prompt = f"Question: {case['question']}\n\nReference article:\n{article}\n\nAnswer to check:\n{answer}"
+    return judge_json(judge_client, GROUNDING_INSTRUCTIONS, prompt)
 
 
 def main() -> None:
