@@ -1,0 +1,8 @@
+# secrets and local state
+.env
+data/tickets.db
+__pycache__/
+*.pyc
+.venv/
+labenv/
+.pytest_cache/
